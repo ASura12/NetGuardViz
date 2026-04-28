@@ -217,7 +217,7 @@ Authorization logic is split into:
 ---
 
 ## 🏗️ Project Structure
-NetGuardViz/
+## NetGuardViz/
 │
 ├── app/ # Backend (FastAPI)
 │ ├── api/ # Routes (logs, alerts)
