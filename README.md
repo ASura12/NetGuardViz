@@ -217,7 +217,25 @@ Authorization logic is split into:
 ---
 
 ## 🏗️ Project Structure
-
+NetGuardViz/
+│
+├── app/ # Backend (FastAPI)
+│ ├── api/ # Routes (logs, alerts)
+│ ├── auth/ # Auth (login, signup, RBAC)
+│ ├── core/ # DB + security (JWT)
+│ ├── models/ # Schemas
+│ ├── utils/ # Detection logic
+│ └── main.py # Entry point
+│
+├── frontend/ # React frontend (Vite)
+│
+├── services/ # External services (email, notifications)
+│
+├── .env # Environment variables (private)
+├── .env.example # Sample env file
+├── requirements.txt # Python dependencies
+├── .gitignore
+└── README.md
 
 ---
 
