@@ -39,7 +39,12 @@
 
 ## 🏗️ Project Structure
 ## NetGuardViz/
-│
+├── Images/
+│   ├── dashboard.png
+│   ├── login.png
+│   ├── alerts.png
+│   ├── logs.png
+│   └── signup.png
 ├── app/ # Backend (FastAPI)
 │ ├── api/ # Routes (logs, alerts)
 │ ├── auth/ # Auth (login, signup, RBAC)
