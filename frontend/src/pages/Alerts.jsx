@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { getAlerts } from "../services/api";
+import { getAlerts, deleteAlert, getUserRole } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import "./Alerts.css";
 
 export default function Alerts() {
   const [alerts, setAlerts] = useState([]);
   const [error, setError] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   const fetchAlerts = async () => {
@@ -37,6 +38,23 @@ export default function Alerts() {
   useEffect(() => {
     fetchAlerts();
   }, [navigate]);
+
+  useEffect(() => {
+    const role = getUserRole();
+    setIsAdmin(role === "admin");
+  }, []);
+
+  const handleDelete = async (alertId) => {
+    if (!alertId) return;
+    const ok = window.confirm("Delete this alert permanently? This action cannot be undone.");
+    if (!ok) return;
+    try {
+      await deleteAlert(alertId);
+      await fetchAlerts();
+    } catch (e) {
+      setError(e?.message || "Delete failed");
+    }
+  };
 
   return (
     <div className="alerts-page">
@@ -78,6 +96,13 @@ export default function Alerts() {
                   ))
                 )}
               </div>
+              {isAdmin && (
+                <div style={{ marginTop: 12 }}>
+                  <button className="btn btn-danger" onClick={() => handleDelete(alert._id || alert.id || alert.log_id)}>
+                    Delete
+                  </button>
+                </div>
+              )}
             </article>
           ))}
         </section>

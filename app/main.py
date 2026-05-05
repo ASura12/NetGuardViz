@@ -4,6 +4,7 @@ from app.api.routes_alerts import router as alerts_router
 from app.api.routes_stats import router as stats_router
 from app.auth.signup import router as auth_router
 from app.auth.login import router as login_router
+from app.auth.admin_routes import router as admin_router
 from app.core.logger import logger
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -23,6 +24,7 @@ app.include_router(alerts_router)
 app.include_router(stats_router)
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 app.include_router(login_router, prefix="/auth", tags=["Auth"])
+app.include_router(admin_router)
 
 @app.get("/")
 def read_root():

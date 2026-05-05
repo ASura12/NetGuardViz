@@ -5,6 +5,7 @@ from app.core.database import alerts_collection as alerts_collection
 from app.models.log_model import LogModel
 from app.models.schemas import all_tasks, LogUpdateModel
 from app.auth.dependency import get_current_user
+from app.auth.roles import require_role
 
 import os
 from bson import ObjectId
@@ -35,12 +36,21 @@ async def get_logs(
 
     skip = (page - 1) * limit
 
-    logs = list(
+    logs_raw = list(
         logs_collection
-        .find(query, {"_id": 0})
+        .find(query)
         .skip(skip)
         .limit(limit)
     )
+
+    # Transform logs to include id field
+    logs = [
+        {
+            **{k: v for k, v in log.items() if k != "_id"},
+            "id": str(log["_id"])
+        }
+        for log in logs_raw
+    ]
 
     total = logs_collection.count_documents(query)
 
@@ -306,7 +316,7 @@ def scan_for_suspicious_keywords(content, logs_collection, alerts_collection, lo
 
 
 @router.put('/{log_id}')
-async def update_log(log_id : str, update_data : LogModel, current_user=Depends(get_current_user)):
+async def update_log(log_id : str, update_data : LogModel, current_user=Depends(require_role("admin"))):
     # 1.Convert log_id str to ObjectId as MongoDb knows only about Object_Id
     try:
         obj_id = ObjectId(log_id)
@@ -340,19 +350,25 @@ async def deleted_task(log_id: str, current_user=Depends(get_current_user)):
     except Exception :
         raise HTTPException(status_code=400, detail = "Invalid Log ID") 
     
-    # 2. Check if documents is existed ur already deleted
+    # 2. Check if log exists
     existing_logs = logs_collection.find_one({
         "_id" : obj_id,
-        "owner_email": current_user["email"],
         "is_deleted" : {"$ne" : True}
     })
 
     if not existing_logs:
         raise HTTPException(status_code=404, detail="Log not found or already deleted")
 
-    # 3️⃣ Perform soft delete
+    # 3. Check permissions: user can delete own logs, admin can delete any
+    is_admin = current_user["role"] == "admin"
+    is_owner = existing_logs["owner_email"] == current_user["email"]
+
+    if not (is_admin or is_owner):
+        raise HTTPException(status_code=403, detail="Access denied: can only delete your own logs")
+
+    # 4. Perform soft delete
     logs_collection.update_one(
-        {"_id": obj_id, "owner_email": current_user["email"]},
+        {"_id": obj_id},
         {
             "$set": {
                 "is_deleted": True,

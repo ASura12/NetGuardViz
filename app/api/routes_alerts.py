@@ -1,7 +1,8 @@
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, Query
 from app.core.database import alerts_collection
-from app.auth.dependency import get_current_user, require_role
+from app.auth.dependency import get_current_user
+from app.auth.roles import require_role
 
 
 
@@ -26,7 +27,9 @@ async def get_alerts(
 ):
 
     query = {}
-    query["owner_email"] = current_user["email"]
+    # regular users see only their alerts; admins see all
+    if current_user.get("role") != "admin":
+        query["owner_email"] = current_user["email"]
 
     if keyword:
         query["detected_keywords"] = {"$regex": keyword, "$options": "i"}
@@ -35,12 +38,16 @@ async def get_alerts(
 
     alerts = list(
         alerts_collection
-        .find(query, {"_id": 0})
+        .find(query)
         .skip(skip)
         .limit(limit)
     )
 
     alerts = [_serialize_bson(alert) for alert in alerts]
+    # expose a stable `id` string to the frontend and remove raw `_id`
+    for a in alerts:
+        if isinstance(a, dict) and a.get("_id") is not None:
+            a["id"] = a.pop("_id")
 
     total = alerts_collection.count_documents(query)
 
@@ -58,7 +65,10 @@ async def delete_alert(alert_id: str, current_user = Depends(require_role("admin
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid alert ID")
 
-    result = alerts_collection.delete_one({"_id": obj_id, "owner_email": current_user["email"]})
+    # Admins are allowed to delete any alert. If you later allow non-admins here,
+    # reintroduce an owner check. Currently this endpoint is protected by
+    # `require_role("admin")` so only admins call it.
+    result = alerts_collection.delete_one({"_id": obj_id})
 
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Alert not found")

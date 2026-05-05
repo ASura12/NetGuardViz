@@ -4,6 +4,7 @@ from datetime import datetime
 from app.models.schemas import UserCreate, UserPublic
 from app.auth.hashing import hash_password
 from app.core.database import users_collection
+from app.core.config import ADMIN_EMAILS
 from app.models.schemas import user_serializer
 
 router = APIRouter()
@@ -20,11 +21,12 @@ async def signup(user: UserCreate):
     hashed_pwd = hash_password(user.password)
 
     # 3️⃣ Create user dictionary
+    is_admin_email = user.email.lower() in ADMIN_EMAILS
     new_user = {
         "username": user.username,
         "email": user.email,
         "hashed_password": hashed_pwd,
-        "role": "user",
+        "role": "admin" if is_admin_email else "user",
         "is_active": True,
         "created_at": datetime.utcnow()
     }
