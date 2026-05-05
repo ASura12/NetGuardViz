@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # NetGuardViz
 
 NetGuardViz is a security web application for analyzing system and network logs, detecting suspicious activity, and reviewing generated alerts. The backend uses FastAPI, MongoDB, and JWT-based authentication, while the frontend uses React and Vite for the dashboard UI.
@@ -326,3 +327,7 @@ uvicorn app.main:app --reload
 **Ashish Pathak**  
 Cybersecurity | FastAPI | Backend Development
 >>>>>>> 59c241b (Revise README to enhance project documentation)
+=======
+# NetGuardViz
+NetGuardViz is a security web app that analyzes system and network logs to detect suspicious activity. It uses FastAPI, MongoDB, and JWT authentication with RBAC. Logs are processed asynchronously, alerts are generated, and a React dashboard provides filtering, pagination, and real-time monitoring.
+>>>>>>> ccfa2c0 (Updated commit)
