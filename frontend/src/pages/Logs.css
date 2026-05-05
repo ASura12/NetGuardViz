@@ -114,6 +114,16 @@
   box-shadow: 0 8px 20px rgba(15, 91, 216, 0.32);
 }
 
+.btn-danger {
+  background: #d32f2f;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(211, 47, 47, 0.32);
+}
+
+.btn-danger:hover {
+  background: #b71c1c;
+}
+
 .error-banner {
   margin: 0 0 14px;
   background: var(--danger-bg);

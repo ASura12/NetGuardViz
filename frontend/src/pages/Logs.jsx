@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getLogs, uploadLog } from "../services/api";
+import { getLogs, uploadLog, deleteLog } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import "./Logs.css";
 
@@ -59,6 +59,18 @@ export default function Logs() {
     }
   };
 
+  const handleDelete = async (logId) => {
+    const ok = window.confirm("Delete this log permanently? This action cannot be undone.");
+    if (!ok) return;
+    try {
+      setError("");
+      await deleteLog(logId);
+      await fetchLogs();
+    } catch (err) {
+      setError(err?.message || "Delete failed.");
+    }
+  };
+
   return (
     <div className="logs-page">
       <header className="logs-header">
@@ -103,6 +115,12 @@ export default function Logs() {
 
               <p className="meta">Status: <strong>{log.status || "pending"}</strong></p>
               <p className="preview">{String(log.content || "").slice(0, 180) || "No content preview available."}</p>
+              
+              <div style={{ marginTop: 12 }}>
+                <button className="btn btn-danger" onClick={() => handleDelete(log.id)}>
+                  Delete
+                </button>
+              </div>
             </article>
           ))}
         </section>

@@ -57,6 +57,13 @@ export const uploadLog = async (file) => {
   });
 };
 
+export const deleteLog = async (logId) => {
+  return request(`/api/logs/${logId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+};
+
 // ALERTS
 export const getAlerts = async () => {
   return request(`/api/alerts/`, {
@@ -76,4 +83,66 @@ export const getStats = async () => {
   return request(`/api/stats/`, {
     headers: { Authorization: `Bearer ${getToken()}` },
   });
+};
+
+// ADMIN USERS
+export const getUsers = async () => {
+  return request(`/auth/users`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+};
+
+export const updateUserRole = async (userId, role) => {
+  return request(`/auth/users/${userId}/role`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({ role }),
+  });
+};
+
+export const updateUserStatus = async (userId, isActive) => {
+  return request(`/auth/users/${userId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({ is_active: isActive }),
+  });
+};
+
+// JWT helpers (client-side only - backend must enforce RBAC)
+export const parseJwt = (token) => {
+  if (!token) return null;
+  try {
+    const base64Url = token.split(".")[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => `%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`)
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+};
+
+export const getUserRole = () => {
+  const t = getToken();
+  if (!t) return null;
+  const parsed = parseJwt(t);
+  return parsed?.role ?? null;
+};
+
+export const getCurrentUserEmail = () => {
+  const t = getToken();
+  if (!t) return null;
+  const parsed = parseJwt(t);
+  return parsed?.sub ?? null;
 };

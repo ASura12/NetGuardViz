@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getLogs, getStats } from "../services/api";
+import { getUserRole } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
@@ -8,8 +9,13 @@ export default function Dashboard() {
   const [stats, setStats] = useState({ total_logs: 0, total_alerts: 0, suspicious_percentage: 0 });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // detect user role for UI controls
+    const role = getUserRole();
+    setIsAdmin(role === "admin");
+
     const fetchLogs = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -58,6 +64,14 @@ export default function Dashboard() {
         <div className="header-actions">
           <button className="btn btn-secondary" onClick={() => navigate("/logs")}>View Logs</button>
           <button className="btn btn-secondary" onClick={() => navigate("/alerts")}>View Alerts</button>
+          {isAdmin && (
+            <>
+              <button className="btn btn-warning" onClick={() => navigate("/admin")}>Admin Panel</button>
+              <button className="btn btn-secondary" onClick={() => navigate("/logs?scope=all")}>
+                View All Logs
+              </button>
+            </>
+          )}
           <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
         </div>
       </header>
