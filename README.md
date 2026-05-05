@@ -1,7 +1,9 @@
 # 🚀 NetGuardViz
 
 **NetGuardViz** is a security-focused log analysis platform that ingests, processes, and monitors system logs to detect suspicious activity in real time. It converts raw logs into actionable alerts using automated pipelines, JWT authentication, and role-based access control.
+## 📸 Demo
 
+![Dashboard](./Images/Dashboard.png)
 ---
 
 ## 🔥 Features
@@ -36,15 +38,33 @@
 - RBAC-based UI rendering
 
 ---
+## 📸 Screenshots
+
+### 👨‍💼 Signup Page
+![Admin](./Images/Signup.png)
+
+### 🔐 Login Page
+![Login](./Images/Signin.png)
+
+### 📊 Dashboard
+![Dashboard](./Images/Threat_Monitoring_Dashboard.png)
+
+### 🚨 Alerts Page
+![Alerts](./Images/Check_Suspicious_alerts.png)
+
+### 📂 Logs Page
+![Logs](./Images/Log_Upload_and_Review.png)
+
 
 ## 🏗️ Project Structure
 ## NetGuardViz/
 ├── Images/
-│   ├── dashboard.png
-│   ├── login.png
-│   ├── alerts.png
-│   ├── logs.png
-│   └── signup.png
+│   ├── Threat_Monitoring_Dashboard.png
+│   ├── Signin.png
+│   ├── Checkin_Suspicious_alerts.png
+│   ├── Log_Upload_and_Review.png
+│   └── Signup.png
+|
 ├── app/ # Backend (FastAPI)
 │ ├── api/ # Routes (logs, alerts)
 │ ├── auth/ # Auth (login, signup, RBAC)
