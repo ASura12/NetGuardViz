@@ -50,7 +50,7 @@
 ![Dashboard](./Images/Threat_Monitoring_Dashboard.png)
 
 ### 🚨 Alerts Page
-![Alerts](./Images/Check_Suspicious_alerts.png)
+![Alerts](./Images/Checking_Suspicious_alerts.png)
 
 ### 📂 Logs Page
 ![Logs](./Images/Log_Upload_and_Review.png)
