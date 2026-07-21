@@ -38,3 +38,5 @@ frontend/.env.*
 # Build artifacts
 dist/
 build/
+
+alerts/alerts.json

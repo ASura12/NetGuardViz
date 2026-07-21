@@ -31,11 +31,15 @@ export const signup = async (data) => {
   });
 };
 
-export const login = async (data) => {
+export const login = async ({ email, password }) => {
+  const params = new URLSearchParams();
+  params.append("username", email); // OAuth2PasswordRequestForm requires "username"
+  params.append("password", password);
+
   return request(`/auth/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: params,
   });
 };
 
