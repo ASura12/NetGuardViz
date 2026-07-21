@@ -1,7 +1,7 @@
 fastapi==0.111.0
 uvicorn[standard]==0.30.1
 
-pydantic==2.7.1
+pydantic==2.7.4
 email-validator==2.1.1
 
 pymongo==4.7.2
@@ -16,5 +16,4 @@ python-multipart==0.0.9
 
 loguru==0.7.2
 
-scapy
 requests
