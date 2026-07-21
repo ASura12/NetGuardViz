@@ -3,6 +3,7 @@ import { getLogs, getStats } from "../services/api";
 import { getUserRole } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
+import ThreatIntelPanel from "../components/ThreatIntelPanel";
 
 export default function Dashboard() {
   const [logs, setLogs] = useState([]);
@@ -10,9 +11,9 @@ export default function Dashboard() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    // detect user role for UI controls
     const role = getUserRole();
     setIsAdmin(role === "admin");
 
@@ -96,6 +97,8 @@ export default function Dashboard() {
           <h2>{processedCount}</h2>
         </article>
       </section>
+
+      <ThreatIntelPanel token={token} />
 
       <section className="log-section">
         <div className="section-head">
