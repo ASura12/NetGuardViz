@@ -18,8 +18,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",           # keep for local dev
-        "https://netguardviz.vercel.app",  # we'll confirm/adjust this after deploy
+        "http://localhost:5173",
+        "https://net-guard-viz.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
