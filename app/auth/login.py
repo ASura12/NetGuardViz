@@ -11,7 +11,7 @@ import os
 router = APIRouter()
 jwt_service = JWTService()
 intel = AbuseIPDB(api_key=os.getenv("ABUSEIPDB_API_KEY", ""))
-siem = AlertEngine(export_path="alerts/alerts.json")
+siem = AlertEngine()
 
 @router.post("/login")
 async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
