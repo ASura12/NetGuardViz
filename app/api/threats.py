@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from app.siem.alert_engine import AlertEngine
 from app.threat_intel.abuseipdb import AbuseIPDB
 from app.auth.dependency import get_current_user  # your existing auth
 from pydantic import BaseModel
@@ -27,7 +28,7 @@ class SeedAlert(BaseModel):
 async def seed_alert(payload: SeedAlert, user=Depends(get_current_user)):
     """Manually add a sample alert — useful for demos/portfolio."""
     from app.siem.alert_engine import AlertEngine
-    siem = AlertEngine(export_path="alerts/alerts.json")
+    siem = AlertEngine()
     ingested = siem.ingest(payload.dict())
     return {"message": "Alert seeded", "alert": ingested}
 
@@ -38,10 +39,5 @@ async def check_ip_reputation(ip: str, user=Depends(get_current_user)):
 
 @router.get("/summary")
 async def threat_summary(user=Depends(get_current_user)):
-    """Return SIEM alert summary with severity breakdown."""
-    import json, os
-    path = "alerts/alerts.json"
-    if not os.path.exists(path):
-        return {"message": "No alerts yet", "summary": {}}
-    with open(path) as f:
-        return json.load(f)
+    siem = AlertEngine()
+    return siem.get_summary()

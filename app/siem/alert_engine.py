@@ -1,8 +1,7 @@
-# siem/alert_engine.py
-import json
 import uuid
 from datetime import datetime
 from enum import Enum
+from app.core.database import alerts_collection
 
 class Severity(Enum):
     LOW = 1
@@ -11,13 +10,10 @@ class Severity(Enum):
     CRITICAL = 4
 
 class AlertEngine:
-    def __init__(self, export_path="alerts/alerts.json"):
-        self.alerts = []
-        self.export_path = export_path
-        self.stats = {s.name: 0 for s in Severity}
+    def __init__(self):
+        pass  # no file path needed anymore
 
     def ingest(self, raw_alert: dict):
-        """Normalize and store an alert from any detector."""
         alert = {
             "id": str(uuid.uuid4()),
             "timestamp": datetime.utcnow().isoformat(),
@@ -27,33 +23,33 @@ class AlertEngine:
             "detail": raw_alert.get("detail", ""),
             "raw": raw_alert
         }
-        self.alerts.append(alert)
-        self.stats[alert["severity"]] += 1
-        self._export()
+        alerts_collection.insert_one(alert.copy())  # .copy() avoids Mongo injecting _id into your local dict
         return alert
 
-    def _export(self):
-        with open(self.export_path, "w") as f:
-            json.dump({
-                "generated_at": datetime.utcnow().isoformat(),
-                "summary": self.stats,
-                "alerts": self.alerts
-            }, f, indent=2)
+    def get_summary(self):
+        stats = {s.name: 0 for s in Severity}
+        alerts = list(alerts_collection.find({}, {"_id": 0}).sort("timestamp", -1))
+        for a in alerts:
+            sev = a.get("severity", "LOW")
+            if sev in stats:
+                stats[sev] += 1
+        return {
+            "generated_at": datetime.utcnow().isoformat(),
+            "summary": stats,
+            "alerts": alerts
+        }
 
     def correlate(self):
-        """
-        Simple correlation: same src_ip triggering multiple
-        alert types = elevated threat score.
-        """
+        alerts = list(alerts_collection.find({}, {"_id": 0}))
         ip_alerts = {}
-        for a in self.alerts:
+        for a in alerts:
             ip = a.get("src_ip")
             if ip:
                 ip_alerts.setdefault(ip, []).append(a["type"])
-        
+
         threats = {}
         for ip, types in ip_alerts.items():
-            if len(set(types)) >= 2:  # Multiple different alert types
+            if len(set(types)) >= 2:
                 threats[ip] = {
                     "threat_level": "ELEVATED",
                     "reasons": list(set(types)),
