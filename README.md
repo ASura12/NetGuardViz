@@ -174,6 +174,37 @@ nmap -sS <your_local_ip>
 
 ---
 
+## 📶 Wi-Fi (802.11) Analysis
+
+NetGuardViz can also analyse 802.11 wireless traffic, either live from a monitor-mode adapter or from a saved capture (for example one recorded in Wireshark). The detector in `app/detectors/wifi_guard.py` is **passive** — it only inspects frames and never transmits.
+
+| Detection | Severity | What it means |
+|---|---|---|
+| `DEAUTH_FLOOD` | HIGH | Many deauthentication/disassociation frames aimed at one target in a short window (management frames are unauthenticated unless 802.11w/PMF is enabled) |
+| `EVIL_TWIN_SUSPECTED` | CRITICAL | An SSID is advertised by a second BSSID with *different* security (e.g. an open clone of a WPA2 network) |
+| `BEACON_FLOOD` | HIGH | Many distinct SSID/BSSID pairs advertised in a short window (fake-AP flooding) |
+| `WEAK_WIFI_SECURITY` | MEDIUM | An open or WEP network was observed |
+| `WPA_HANDSHAKE_CAPTURED` | LOW | A full WPA 4-way EAPOL handshake was observed (informational) |
+
+Alerts go through the same SIEM engine as the network alerts and show up on the **Alerts** page with a `Wi-Fi (802.11)` source label. Wi-Fi alerts carry a MAC/BSSID (`src_mac`) instead of an IP and are correlated by it.
+
+**Try it without hardware** (no database needed with `--dry-run`):
+```bash
+pip install -r requirements.txt
+python scripts/make_sample_pcap.py                       # writes samples/sample.pcap (synthetic, nothing is transmitted)
+python -m app.wifi_capture --pcap samples/sample.pcap --dry-run
+python test_wifi_guard.py                                # unit tests
+```
+
+**Live capture** (Linux/macOS, monitor-mode-capable adapter, run as root, only on networks you own or are authorised to monitor):
+```bash
+sudo airmon-ng start wlan0                               # creates wlan0mon
+sudo python -m app.wifi_capture --iface wlan0mon         # alerts are ingested into MongoDB
+```
+Like `app/capture.py`, the Wi-Fi agent runs **locally** — it needs raw access to the adapter and cannot run on Render. Thresholds are adjustable with `--window` and `--deauth-threshold`.
+
+---
+
 ## 📡 API Endpoints
 
 | Method | Endpoint | Description |

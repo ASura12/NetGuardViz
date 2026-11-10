@@ -3,6 +3,47 @@ import { getAlerts, deleteAlert, getUserRole } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import "./Alerts.css";
 
+// Alerts raised by the live capture agents (app/capture.py, app/wifi_capture.py)
+// have a `type` and `severity`; keyword alerts from uploaded logs do not.
+function formatTimestamp(ts) {
+  if (!ts) return "N/A";
+  // The backend stores naive UTC (datetime.utcnow().isoformat()), so mark it as UTC.
+  const iso = /[zZ]|[+-]\d\d:\d\d$/.test(ts) ? ts : `${ts}Z`;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? String(ts) : d.toLocaleString();
+}
+
+function SiemAlertCard({ alert, isAdmin, onDelete }) {
+  const severity = String(alert.severity || "LOW").toUpperCase();
+  const isWifi = alert.source === "wifi";
+  const sourceId = alert.src_ip || alert.src_mac;
+  return (
+    <article className={`alert-card siem-card sev-${severity.toLowerCase()}`}>
+      <div className="row">
+        <h3>{String(alert.type).replace(/_/g, " ")}</h3>
+        <span className={`badge sev-badge sev-${severity.toLowerCase()}`}>{severity}</span>
+      </div>
+
+      <p className="meta">Source: <strong>{isWifi ? "Wi-Fi (802.11)" : "Network"}</strong></p>
+      <p className="meta">Detected: <strong>{formatTimestamp(alert.timestamp)}</strong></p>
+      {sourceId && (
+        <p className="meta">
+          {alert.src_ip ? "Source IP" : "MAC / BSSID"}: <strong>{String(sourceId)}</strong>
+        </p>
+      )}
+      {alert.detail && <p className="meta siem-detail">{alert.detail}</p>}
+
+      {isAdmin && (
+        <div style={{ marginTop: 12 }}>
+          <button className="btn btn-danger" onClick={() => onDelete(alert._id || alert.id)}>
+            Delete
+          </button>
+        </div>
+      )}
+    </article>
+  );
+}
+
 export default function Alerts() {
   const [alerts, setAlerts] = useState([]);
   const [error, setError] = useState("");
@@ -62,7 +103,7 @@ export default function Alerts() {
         <div>
           <p className="eyebrow">NetGuardViz Response Feed</p>
           <h2>Suspicious Alerts</h2>
-          <p className="subtext">Events generated from suspicious keyword detection in uploaded logs.</p>
+          <p className="subtext">Suspicious keywords found in uploaded logs, plus live detections from the network and Wi-Fi capture agents.</p>
         </div>
         <div className="header-actions">
           <button className="btn btn-secondary" onClick={() => navigate("/dashboard")}>Dashboard</button>
@@ -76,7 +117,14 @@ export default function Alerts() {
         <p className="empty-state">No alerts found. Upload logs and wait for analysis to complete.</p>
       ) : (
         <section className="alerts-grid">
-          {alerts.map((alert, idx) => (
+          {alerts.map((alert, idx) => alert.type ? (
+            <SiemAlertCard
+              key={`${alert.id || alert._id || "siem"}-${idx}`}
+              alert={alert}
+              isAdmin={isAdmin}
+              onDelete={handleDelete}
+            />
+          ) : (
             <article className="alert-card" key={`${alert.log_id || "alert"}-${idx}`}>
               <div className="row">
                 <h3>Alert #{idx + 1}</h3>

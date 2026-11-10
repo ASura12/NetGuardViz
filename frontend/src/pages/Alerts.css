@@ -181,3 +181,25 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ---- SIEM alerts from the network / Wi-Fi capture agents ---- */
+.siem-card {
+  border-left: 5px solid var(--border);
+}
+
+.siem-card.sev-critical { border-left-color: #8b1a1a; }
+.siem-card.sev-high     { border-left-color: #c2410c; }
+.siem-card.sev-medium   { border-left-color: #b45309; }
+.siem-card.sev-low      { border-left-color: #4d7c0f; }
+
+.sev-badge.sev-critical { background: #8b1a1a; color: #fff; }
+.sev-badge.sev-high     { background: #c2410c; color: #fff; }
+.sev-badge.sev-medium   { background: #f5c26b; color: #4a2a00; }
+.sev-badge.sev-low      { background: #d9ecc0; color: #2f4a0a; }
+
+.siem-detail {
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}

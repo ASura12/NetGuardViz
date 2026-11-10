@@ -17,3 +17,5 @@ python-multipart==0.0.9
 loguru==0.7.2
 
 requests
+# Wi-Fi (802.11) packet analysis - needed by app/capture.py and app/wifi_capture.py (local agents)
+scapy
