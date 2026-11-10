@@ -20,6 +20,9 @@ class AlertEngine:
             "severity": raw_alert.get("severity", "LOW"),
             "type": raw_alert.get("alert"),
             "src_ip": raw_alert.get("src_ip") or raw_alert.get("ip"),
+            # Wi-Fi (802.11) alerts have MAC addresses instead of IPs
+            "src_mac": raw_alert.get("src_mac") or raw_alert.get("bssid"),
+            "source": raw_alert.get("source", "network"),
             "detail": raw_alert.get("detail", ""),
             "raw": raw_alert
         }
@@ -43,8 +46,9 @@ class AlertEngine:
         alerts = list(alerts_collection.find({}, {"_id": 0}))
         ip_alerts = {}
         for a in alerts:
-            ip = a.get("src_ip")
-            if ip:
+            # correlate by IP, or by MAC for Wi-Fi alerts
+            ip = a.get("src_ip") or a.get("src_mac")
+            if ip and a.get("type"):
                 ip_alerts.setdefault(ip, []).append(a["type"])
 
         threats = {}
