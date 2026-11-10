@@ -111,6 +111,7 @@ NetGuardViz is a full-stack security monitoring system that combines **live pack
   <tr>
     <td><img src="Images/Checking_Suspicious_alerts.png" alt="Suspicious Alerts" width="400"/></td>
     <td><img src="Images/Log_Upload_and_Review.png" alt="Log Upload" width="400"/></td>
+    <td><img src="Images/NetGuadrviz_wifi_threat.jpeg" alt="Log Upload" width="400"/></td>
   </tr>
 </table>
 
